@@ -1,11 +1,15 @@
 package pages;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
 
 public class RegistrationPage extends BasePage{
-    private final WebElement PHONE_NUMBER_FIELD = findElement(By.xpath("//input[@name='phone']"));
-    private final WebElement NEXT_BUTTON = findElement(By.xpath("//div[contains(@class, 'EnterLogin__button')]//button"));
+
+    @FindBy(name = "phone")
+    private  WebElement PHONE_NUMBER_FIELD;
+
+    @FindBy(xpath = "//div[contains(@class, 'EnterLogin__button')]//button")
+    private WebElement NEXT_BUTTON;
 
     public boolean isNextButtonDisabled(){
         return NEXT_BUTTON.isEnabled();

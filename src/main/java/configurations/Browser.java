@@ -1,51 +1,36 @@
 package configurations;
 
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.edge.EdgeOptions;
-import org.openqa.selenium.firefox.FirefoxOptions;
-import org.openqa.selenium.remote.AbstractDriverOptions;
-import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
 
 public class Browser {
     private static WebDriver webDriver;
-    private static final List<String> options = new LinkedList<>(
-            Arrays.asList("--ignore-ssl-errors=yes",
-                    "--no-sandbox",
-                    "--disable-dev-shm-usage",
-                    "--ignore-certificate-errors"));
 
-    private static AbstractDriverOptions<?> getOptions(){
-        AbstractDriverOptions<?> result = null;
+    private static void initDriver(){
         switch (System.getProperty("BROWSER")){
             case ("FIREFOX"):
-                result = new FirefoxOptions().addArguments(options);
+                WebDriverManager.firefoxdriver().setup();
+                webDriver = new FirefoxDriver();
                 break;
             case ("CHROME"):
-                result = new ChromeOptions().addArguments(options);
+                WebDriverManager.chromedriver().setup();
+                webDriver = new ChromeDriver();
                 break;
             case ("EDGE"):
-                result = new EdgeOptions().addArguments(options);
+                WebDriverManager.edgedriver().setup();
+                webDriver = new EdgeDriver();
                 break;
         }
-        return result;
     }
 
     public static WebDriver getWebDriver(){
         if (webDriver == null) {
-            try {
-                webDriver = new RemoteWebDriver(new URL("http://localhost:4444/wd/hub"),
-                        getOptions());
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
+            initDriver();
             webDriver.manage().timeouts().implicitlyWait(Duration.ofMinutes(1));
         }
         return webDriver;
