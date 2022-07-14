@@ -1,0 +1,49 @@
+pipeline {
+
+    agent any
+    
+    parameters {
+         choice choices: ['CHROME', 'FIREFOX', 'EDGE'], 
+         description: 'Chose browser', 
+         name: 'BrowserName'
+    }
+    
+    triggers {
+          pollSCM 'H/5 * * * *'
+    }
+    
+    environment{
+        DOCKERDIR ='src/main/resources/docker'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git credentialsId: '82ecfaac-230f-4977-9435-941675e7aeea',
+                url: 'https://github.com/KGREPOSITORY/seleniumDocker.git'
+            }
+        }
+        stage('Build docker containers') {
+            steps {
+                dir ("${DOCKERDIR}"){
+                script {
+                    sh "docker-compose -f docker-compose-v3.yml up -d"
+                }
+            }
+        }
+    }
+        stage('Run tests'){
+            steps{
+                echo 'Start to run tests using '+ params.BrowserName
+                sh 'mvn clean test -DBROWSER='+ params.BrowserName
+            }
+        }
+  }
+  post{
+        always{
+            dir ("${DOCKERDIR}"){
+            sh "docker-compose -f docker-compose-v3.yml down || true"
+            }
+        }
+    }
+}
